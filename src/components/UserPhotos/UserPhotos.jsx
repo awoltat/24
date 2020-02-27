@@ -1,32 +1,76 @@
-import React, {useEffect, useState} from "react";
-import UserAlbum from "../UserAlbum/UserAlbum";
+import React, {useEffect, useReducer, useState} from "react";
 import UserPhoto from "../UserPhoto/UserPhoto";
-import axios from "axios";
 import './UserPhotos.css';
+import Modal from "../Modal/Modal";
+import PhotoModal from "../Modal/PhotoModal/PhotoModal";
+import UserCard from "../UserCard/UserCard";
+import UserModal from "../Modal/UserModal/UserModal";
 
-const UserPhotos = () => {
-    const [data, setData] = useState({photo: [], isFetching: false});
+const initialState = {
+    photos: [],
+    modal: {
+        isShowModal: false,
+        photo: {},
+    }
+};
+
+const reducer = (state, action) => {
+    switch (action.type) {
+        case 'SET_PHOTOS':
+            return {
+                ...state,
+                photos: action.payload,
+            };
+
+        case 'SHOW_MODAL':
+            return {
+                ...state,
+                modal: {
+                    isShowModal: true,
+                    photo: state.photos.find(u => u.id === action.payload)
+                }
+            };
+
+        case 'HIDE_MODAL':
+            return {
+                ...state,
+                modal: {
+                    isShowModal: false,
+                    photo: null,
+                }
+            };
+
+        default: return state;
+
+    }
+};
+
+
+const UserPhotos = ({data}) => {
+    const [state, dispatch] = useReducer(reducer, initialState);
 
     useEffect(() => {
-        const fetchPhoto = async () => {
-            try {
-                setData({photo: data.photo, isFetching: true});
-                const response = await axios.get('http://jsonplaceholder.typicode.com/photos');
-                setData({photo: response.data, isFetching: false});
-            } catch (e) {
-                console.log(e);
-                setData({photo: data.photo, isFetching: false});
-            }
-        };
-        fetchPhoto();
-    }, []);
+        dispatch({type:'SET_PHOTOS', payload: data})
+    }, [data]);
+    useEffect(() => {console.log(state)});
 
+    const handleShowModal = (id) => {
+        dispatch({type: 'SHOW_MODAL', payload: id})
+    };
 
+    const handleHideModal = () => {
+        dispatch({type: 'HIDE_MODAL'})
+    };
 
     return (
-        <div className='user-cards'>
-            {data.photo.map(photo =>  <UserPhoto photo={photo}/>)}
-        </div>
+        <>
+            <div className='user-photos'>
+                {state.photos.map(card => <UserPhoto photo={card} handleShowModal={handleShowModal} />)}
+            </div>
+            <Modal isShowModal={state.modal.isShowModal} handleHideModal={handleHideModal}>
+                <UserModal photo={state.modal.photo}/>
+            </Modal>
+        </>
     )
 };
 

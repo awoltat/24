@@ -2,7 +2,6 @@ import React from "react";
 import './UserPhoto.css';
 
 const UserPhoto = (props) => {
-    console.log(props.photo);
     return (
         <div className='user-photo'>
             <span>Album Id: {props.photo.albumId} </span>
@@ -10,6 +9,7 @@ const UserPhoto = (props) => {
             <p>Title: {props.photo.title}</p>
             <p>URL: {props.photo.url}</p>
             <p>thumbnailUrl: {props.photo.thumbnailUrl}</p>
+            <button onClick={() => props.handleShowModal(props.photo.id)}>Get info</button>
         </div>
     )
 };

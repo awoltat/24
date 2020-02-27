@@ -1,34 +1,34 @@
 import React, {useEffect, useState} from "react";
 import './UserAlbums.css';
-import UserAlbumsService from "./UserAlbumsService";
 import UserAlbum from "../UserAlbum/UserAlbum";
-import axios from "axios";
+import Modal from "../Modal/Modal";
+import AlbumModal from "../Modal/AlbumModal/AlbumModal";
 
-const UserAlbums = () => {
-    // let albumsService = new UserAlbumsService();
-    const [data, setData] = useState({albums: [], isFetching: false});
-    // albumsService.getUserAlbums().then(albumsJson => albumsJson.json()).then(albumsResult => setAlbums(albumsResult));
+const UserAlbums = ({data}) => {
+    const [checkedAlbumId, setCheckedAlbumId] = useState(null);
+    const [showModal, setShowModal] = useState(false);
+    const [album, setAlbum] = useState({});
+
+    const handleSetId = id => setCheckedAlbumId(id);
 
     useEffect(() => {
-        const fetchAlbums = async () => {
-            try {
-                setData({albums: data.albums, isFetching: true});
-                const response = await axios.get(' http://jsonplaceholder.typicode.com/albums');
-                setData({albums: response.data, isFetching: false});
-            } catch (e) {
-                console.log(e);
-                setData({albums: data.albums, isFetching: false});
-            }
-        };
-        fetchAlbums();
-    }, []);
+        if (checkedAlbumId !== null && data.length) {
+            const album = data.find(u => u.id === checkedAlbumId);
+            console.log(album);
+            setAlbum(album);
+            setShowModal(true);
+        }
+    }, [checkedAlbumId]);
 
-    return(
-        <div className='user-albums'>
-            {data.albums.map(album =>  <UserAlbum key={album.id} album={album}/>)}
-
-        </div>
+    return (
+        <>
+            <div className='user-albums'>
+                {data.map(card => <UserAlbum album={card} handleSetId={handleSetId}/>)}
+            </div>
+            <Modal {...{showModal, setShowModal}}>
+                <AlbumModal album={album}/>)
+            </Modal>
+        </>
     )
 };
-
 export default UserAlbums;
